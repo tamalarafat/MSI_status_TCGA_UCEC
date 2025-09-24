@@ -1,0 +1,3 @@
+name	filter
+DP100_AF002	FORMAT["DP"][0] > 100 and FORMAT["AF"][0] > 0.02
+pathogenic	not {"pathogenic","likely_pathogenic","drug_response"}.isdisjoint(CSQ["CLIN_SIG"])

@@ -1,0 +1,14 @@
+{
+    "input": "/pfssmain/departments/pathologie/users/tamyas01/work_dir/sarek/samplesheet_tumor_blood.csv",
+    "step": "variant_calling",
+    "outdir": "/pfssmain/departments/pathologie/users/tamyas01/work_dir/sarek/results/sarek_tumorblood",
+    "wes": true,
+    "intervals": "/pfssmain/departments/pathologie/db/target_regions/TP53_POLE.bed",
+    "tools": "msisensorpro,mutect2,freebayes,strelka",
+    "genome": "GRCh38",
+    "fasta": "/pfssmain/departments/pathologie/db/refgenomes/gdc_references/Homo_sapiens/sequences/GRCh38.d1.vd1.fa",
+    "fasta_fai": "/pfssmain/departments/pathologie/db/refgenomes/gdc_references/Homo_sapiens/sequences/GRCh38.d1.vd1.fa.fai",
+    "save_reference": true,
+    "save_mapped": false,
+    "igenomes_ignore": true
+}

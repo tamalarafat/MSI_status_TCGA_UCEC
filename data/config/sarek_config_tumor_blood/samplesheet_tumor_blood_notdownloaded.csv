@@ -1,0 +1,3 @@
+patient,status,sample,bam,bai
+TCGA-BS-A0UV,0,TCGA-BS-A0UV-10A,/pfssmain/departments/pathologie/data/research/2025-TCGA-UCEC/c6796aca-6bc4-44d8-9ece-fcf4ae55bc40/bdf22c4b-9e86-4296-a7aa-e589082169d0_wxs_gdc_realn.bam,/pfssmain/departments/pathologie/data/research/2025-TCGA-UCEC/c6796aca-6bc4-44d8-9ece-fcf4ae55bc40/bdf22c4b-9e86-4296-a7aa-e589082169d0_wxs_gdc_realn.bai
+TCGA-BS-A0UV,1,TCGA-BS-A0UV-01A,/pfssmain/departments/pathologie/data/research/2025-TCGA-UCEC/a9515774-2414-4100-976b-16fcb771d4b2/b1739564-668d-408e-8f9c-8f4c0328e7f0_wxs_gdc_realn.bam,/pfssmain/departments/pathologie/data/research/2025-TCGA-UCEC/a9515774-2414-4100-976b-16fcb771d4b2/b1739564-668d-408e-8f9c-8f4c0328e7f0_wxs_gdc_realn.bai
