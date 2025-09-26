@@ -1,4 +1,5 @@
 library(openxlsx)
+library(dplyr)
 
 # Load MSI result
 temp_df <- read.csv("~/Documents/projects/replicate_MSI/main_results/results/MSI_results/MSI_status_TCGA_UCEC.csv")
@@ -10,84 +11,34 @@ temp_col_names <- c("Patient.ID", "Tumorbudding_yes_no", "POLE_original", "POLE_
   
 # Subset the data
 temp_sub_df <- temp_subtype_df[, temp_col_names]
-colnames(temp_sub_df)[c(4, 6, 7, 8)] <- c("POLE_monitored", "P53_monitored", "molecular_subtype_new", "molecular_subtype_new_numbered")
+colnames(temp_sub_df)[c(1, 4, 6, 7, 8)] <- c("patient_id", "POLE_monitored", "P53_monitored", "molecular_subtype_new", "molecular_subtype_new_numbered")
 
+# Let's put these informations together
+temp_final_df <- temp_sub_df %>% left_join(temp_df, by = c("patient_id" = "patient_id"))
 
-## Load the table generated from KAI's analysis
-temp_kh <- openxlsx::read.xlsx("~/Documents/projects/replicate_MSI/MSI_and_molecular_subtypes_table/grouped_patients_based_on_budd_and_subtypes/summarized_patient_table.xlsx")
-temp_kh <- temp_kh[, c("Patient.ID", "Total_MSI_sites_assessed", "MSI_percentage", "Percentage3")]
-colnames(temp_kh)[c(3,4)] <- c("MSI_sites_with_instability", "MSI_percentage")
+# Rearrange the columns
+temp_final_df <- temp_final_df[, c(1, 2, 11:14, 3:10, 16:19, 15)]
 
-### 474 patients from the tumor blood comparison listed in the table
-length(intersect(temp_kh$Patient.ID, temp_yat$Patient.ID))
+# Let's add the missing classification: which did not add tumor vs tissue comparison
+for (i in c(1:nrow(temp_final_df))){
+  if (!is.na(temp_final_df[i, ]$MSI_classification) & temp_final_df[i, ]$MSI_classification == "MSI" & temp_final_df[i, ]$molecular_subtype_new == "not classified"){
+    temp_final_df[i, ]$molecular_subtype_new = "MSI"
+    temp_final_df[i, ]$molecular_subtype_new_numbered = 2
+  }
+  
+  else if (!is.na(temp_final_df[i, ]$MSI_classification) & temp_final_df[i, ]$MSI_classification == "MSS" & temp_final_df[i, ]$molecular_subtype_new == "not classified"){
+    temp_final_df[i, ]$molecular_subtype_new = "NSMP"
+    temp_final_df[i, ]$molecular_subtype_new_numbered = 3
+  }
+}
 
-## Let's compare the outputs
+# Let's push the na rows 
+temp_final_df_1 <- temp_final_df[!is.na(temp_final_df$MSI_classification), ]
 
-# Subset the table generated from my analysis
-temp_yat <- temp_df[, c(7,2,3,4)]
+temp_final_df_2 <- temp_final_df[is.na(temp_final_df$MSI_classification), ]
 
-colnames(temp_yat) <- c("Patient.ID", "YAT_Total_MSI_sites_assessed", "YAT_MSI_sites_with_instability", "YAT_MSI_percentage")
+final_df <- rbind.data.frame(temp_final_df_1, temp_final_df_2)
 
-temp_mdf <- merge(temp_kh, temp_yat, by = "Patient.ID", all = F)
+# Save result
+write.xlsx(final_df, file = "~/Documents/projects/replicate_MSI/main_results/results/MSI_results/20250926_TCGA_new_MSI_P53_POLE_neu_5y_YAT.xlsx", rowNames = FALSE)
 
-temp_mdf$pct_difference = temp_mdf$MSI_percentage - temp_mdf$YAT_MSI_percentage
-
-#### KAI only included Tumor vs Blood results
-# MSI-sensor pro output from comparison "Tumor vs Blood"
-temp_tb <- read.csv("~/Documents/projects/replicate_MSI/main_results/results/sarek_comparison_tumor_blood/MSISENSORPRO/msi_tumor_blood_output.csv")
-
-# Put all the information together
-temp_df <- temp_tb
-
-
-temp_df$sample_1 <- do.call(rbind, strsplit(temp_df$pair, "_vs_", fixed = TRUE))[, 1]
-temp_df$sample_2 <- do.call(rbind, strsplit(temp_df$pair, "_vs_", fixed = TRUE))[, 2]
-
-# 2) patient_id from sample_1 (up to the 3rd "-")
-temp_df$patient_id <- sub("^((?:[^-]+-){2}[^-]+).*", "\\1", temp_df$sample_1)
-
-# Subset the table generated from my analysis
-temp_yat <- temp_df[, c(7,2,3,4)]
-
-colnames(temp_yat) <- c("Patient.ID", "YAT_Total_MSI_sites_assessed", "YAT_MSI_sites_with_instability", "YAT_MSI_percentage")
-
-temp_mdf <- merge(temp_kh, temp_yat, by = "Patient.ID", all.x = T)
-
-temp_mdf$pct_difference = temp_mdf$MSI_percentage - temp_mdf$YAT_MSI_percentage
-
-
-### Let's take the missing MSI cases
-temp_kh_miss <- temp_kh[which(is.na(temp_kh$MSI_percentage)), ]
-rownames(temp_kh_miss) <- NULL
-
-temp_kh_miss_fill <- merge(temp_kh_miss, temp_yat, by = "Patient.ID", all.x = T)
-
-#### KAI only included Tumor vs Blood results
-# MSI-sensor pro output from comparison "Tumor vs Blood"
-temp_tb <- read.csv("~/Documents/projects/replicate_MSI/main_results/results/sarek_comparison_tumor_blood/MSISENSORPRO/msi_tumor_blood_output.csv")
-
-# Put all the information together
-temp_df <- temp_tb
-
-
-temp_df$sample_1 <- do.call(rbind, strsplit(temp_df$pair, "_vs_", fixed = TRUE))[, 1]
-temp_df$sample_2 <- do.call(rbind, strsplit(temp_df$pair, "_vs_", fixed = TRUE))[, 2]
-
-# 2) patient_id from sample_1 (up to the 3rd "-")
-temp_df$patient_id <- sub("^((?:[^-]+-){2}[^-]+).*", "\\1", temp_df$sample_1)
-
-# Subset the table generated from my analysis
-temp_yat <- temp_df[, c(7,2,3,4)]
-
-colnames(temp_yat) <- c("Patient.ID", "YAT_Total_MSI_sites_assessed", "YAT_MSI_sites_with_instability", "YAT_MSI_percentage")
-
-temp_mdf <- merge(temp_kh, temp_yat, by = "Patient.ID", all.x = T)
-
-temp_mdf$pct_difference = temp_mdf$MSI_percentage - temp_mdf$YAT_MSI_percentage
-
-
-### Let's take the missing MSI cases
-temp_kh_miss <- temp_kh[which(is.na(temp_kh$MSI_percentage)), ]
-rownames(temp_kh_miss) <- NULL
-
-temp_kh_miss_fill <- merge(temp_kh_miss, temp_yat, by = "Patient.ID", all.x = T)
