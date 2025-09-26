@@ -5,7 +5,7 @@ library(dplyr)
 temp_df <- read.csv("~/Documents/projects/replicate_MSI/main_results/results/MSI_results/MSI_status_TCGA_UCEC.csv")
 
 # Molecular subtypes and tumor budding table - received from Prof. Tilman Rau
-temp_subtype_df <- read.xlsx("~/Documents/projects/replicate_MSI/main_results/results/molecular_subtypes_table/20240817_TCGA_new_MSI_P53_POLE_neu_5y_YAT.xlsx")
+temp_subtype_df <- read.xlsx("~/Documents/projects/replicate_MSI/main_results/results/molecular_subtypes_table_original_2024/20240817_TCGA_new_MSI_P53_POLE_neu_5y_YAT.xlsx")
 
 temp_col_names <- c("Patient.ID", "Tumorbudding_yes_no", "POLE_original", "POLE_Kai", "P53_original", "P53_Kai", "Mol_subtype_new", "Mol_subtype_new_numbered")
   
